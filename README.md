@@ -1,4 +1,4 @@
-<img width="4000" height="2252" alt="IoT26-HW06" src="https://github.com/user-attachments/assets/fcb5d9f4-78fb-415e-85f7-f5adcf927c97" /># HW6 Car Plate Recognition System with Raspberry Pi and Node-RED
+# HW6 Car Plate Recognition System with Raspberry Pi and Node-RED
 
 ## 과제명
 
