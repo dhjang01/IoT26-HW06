@@ -1,4 +1,4 @@
-# HW6 Car Plate Recognition System with Raspberry Pi and Node-RED
+<img width="4000" height="2252" alt="IoT26-HW06" src="https://github.com/user-attachments/assets/fcb5d9f4-78fb-415e-85f7-f5adcf927c97" /># HW6 Car Plate Recognition System with Raspberry Pi and Node-RED
 
 ## 과제명
 
@@ -7,10 +7,6 @@ HW6 Car Plate Recognition System with Raspberry Pi and Node-RED
 ## 목표
 
 Node-RED Dashboard에서 버튼을 누르면 Raspberry Pi Camera로 사진을 촬영하고, YOLO 모델로 촬영 이미지 안의 차량을 인식한 뒤 결과를 Dashboard에 표시한다.
-
-## 변경된 과제 방식 설명
-
-기존 OpenALPR 번호판 인식 방식 대신 Raspberry Pi Camera, Node-RED Dashboard, Python YOLO 스크립트를 연결한다. 실시간 스트리밍은 사용하지 않고, 사진 1장을 `/home/aiot/Pictures/photo1.jpg`로 저장한 뒤 YOLO가 해당 이미지를 분석한다.
 
 ## 사용한 하드웨어
 
@@ -342,16 +338,10 @@ IoT26-HW06/
 /home/aiot/IoT26-HW06/yolo_result.json
 ```
 
-## 전체 실행 순서
+## 결과물
 
-1. `/home/aiot/IoT26-HW06` 프로젝트 폴더를 준비한다.
-2. `/home/aiot/Pictures` 폴더를 만든다.
-3. Node-RED와 Node-RED Dashboard를 설치한다.
-4. `~/.node-red/settings.js`에 `httpStatic: '/home/aiot/Pictures/'`를 설정한다.
-5. `libcamera-still` 또는 `rpicam-still`로 사진 촬영을 테스트한다.
-6. `/home/aiot/yolo-env` Python venv를 만들고 `pip install -r requirements.txt`를 실행한다.
-7. `python /home/aiot/IoT26-HW06/detect_car.py`로 YOLO 단독 실행을 확인한다.
-8. Node-RED Editor `http://172.20.10.2:1880`에 접속한다.
-9. `flows_example.json`을 import하고 Deploy한다.
-10. Dashboard `http://172.20.10.2:1880/ui`에서 Take Photo 버튼을 누른다.
-11. 이미지와 YOLO 차량 인식 결과가 표시되는지 확인한다.
+https://github.com/user-attachments/assets/9d852768-1f6a-48c5-9614-72311fb10dc3
+
+<img width="4000" height="2252" alt="IoT26-HW06" src="https://github.com/user-attachments/assets/7318b427-df5f-4090-830e-c5306671fe58" />
+
+
