@@ -1,0 +1,271 @@
+[
+  {
+    "id": "hw6_tab",
+    "type": "tab",
+    "label": "HW6 Car Plate Recognition",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "ui_tab_hw6",
+    "type": "ui_tab",
+    "name": "HW6 Camera YOLO",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_hw6",
+    "type": "ui_group",
+    "name": "Camera and Vehicle Detection",
+    "tab": "ui_tab_hw6",
+    "order": 1,
+    "disp": true,
+    "width": "8",
+    "collapse": false,
+    "className": ""
+  },
+  {
+    "id": "take_photo_button",
+    "type": "ui_button",
+    "z": "hw6_tab",
+    "name": "Take Photo",
+    "group": "ui_group_hw6",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "label": "Take Photo",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "className": "",
+    "icon": "camera_alt",
+    "payload": "",
+    "payloadType": "str",
+    "topic": "",
+    "topicType": "str",
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "exec_camera"
+      ]
+    ]
+  },
+  {
+    "id": "exec_camera",
+    "type": "exec",
+    "z": "hw6_tab",
+    "command": "bash -lc 'if command -v libcamera-still >/dev/null 2>&1; then libcamera-still -o /home/aiot/Pictures/photo1.jpg --width 640 --height 480 --timeout 1000; else rpicam-still -o /home/aiot/Pictures/photo1.jpg --width 640 --height 480 --timeout 1000; fi'",
+    "addpay": false,
+    "append": "",
+    "useSpawn": "false",
+    "timer": "",
+    "winHide": false,
+    "oldrc": false,
+    "name": "Take photo with camera command",
+    "x": 410,
+    "y": 120,
+    "wires": [
+      [
+        "refresh_image"
+      ],
+      [
+        "camera_error_text"
+      ],
+      [
+        "camera_rc_debug"
+      ]
+    ]
+  },
+  {
+    "id": "refresh_image",
+    "type": "function",
+    "z": "hw6_tab",
+    "name": "Refresh image",
+    "func": "msg.payload = Date.now();\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 120,
+    "wires": [
+      [
+        "image_template",
+        "exec_yolo"
+      ]
+    ]
+  },
+  {
+    "id": "image_template",
+    "type": "ui_template",
+    "z": "hw6_tab",
+    "group": "ui_group_hw6",
+    "name": "Camera image",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "format": "<div style=\"text-align:center;\">\n  <h3>Raspberry Pi Camera Image</h3>\n  <img src=\"/photo1.jpg?ts={{msg.payload}}\" style=\"width:100%; max-width:640px;\">\n</div>",
+    "storeOutMessages": true,
+    "fwdInMessages": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 960,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "exec_yolo",
+    "type": "exec",
+    "z": "hw6_tab",
+    "command": "/home/aiot/yolo-env/bin/python /home/aiot/IoT26-HW06/detect_car.py",
+    "addpay": false,
+    "append": "",
+    "useSpawn": "false",
+    "timer": "",
+    "winHide": false,
+    "oldrc": false,
+    "name": "Run YOLO detect_car.py",
+    "x": 970,
+    "y": 160,
+    "wires": [
+      [
+        "json_yolo"
+      ],
+      [
+        "yolo_error_text"
+      ],
+      [
+        "yolo_rc_debug"
+      ]
+    ]
+  },
+  {
+    "id": "json_yolo",
+    "type": "json",
+    "z": "hw6_tab",
+    "name": "Parse YOLO JSON",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 1230,
+    "y": 160,
+    "wires": [
+      [
+        "format_yolo_result"
+      ]
+    ]
+  },
+  {
+    "id": "format_yolo_result",
+    "type": "function",
+    "z": "hw6_tab",
+    "name": "Format YOLO result",
+    "func": "const result = msg.payload;\n\nif (!result || result.success === false) {\n    const error = result && result.error ? result.error : \"Unknown error\";\n    msg.payload = \"YOLO error: \" + error;\n    return msg;\n}\n\nif (!result.vehicle_detected || result.count === 0) {\n    msg.payload = \"No vehicle detected\";\n    return msg;\n}\n\nconst lines = result.detections.map((item, index) => {\n    const confidence = Math.round(item.confidence * 1000) / 1000;\n    return `${index + 1}. ${item.class} (${confidence})`;\n});\n\nmsg.payload = `Vehicle detected: ${result.count}\\n` + lines.join(\"\\n\");\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1470,
+    "y": 160,
+    "wires": [
+      [
+        "ui_yolo_result"
+      ]
+    ]
+  },
+  {
+    "id": "ui_yolo_result",
+    "type": "ui_text",
+    "z": "hw6_tab",
+    "group": "ui_group_hw6",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "name": "YOLO result",
+    "label": "YOLO Result",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": "",
+    "x": 1690,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "camera_error_text",
+    "type": "debug",
+    "z": "hw6_tab",
+    "name": "camera stderr",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 700,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "camera_rc_debug",
+    "type": "debug",
+    "z": "hw6_tab",
+    "name": "camera return code",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 710,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "yolo_error_text",
+    "type": "debug",
+    "z": "hw6_tab",
+    "name": "yolo stderr",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1230,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "yolo_rc_debug",
+    "type": "debug",
+    "z": "hw6_tab",
+    "name": "yolo return code",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1240,
+    "y": 300,
+    "wires": []
+  }
+]
